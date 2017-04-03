@@ -21,16 +21,16 @@
  
 %freq = [3 10 35]*1e9;
 freq = 34.85e9;
-temp = [-8 0 10 20];% -20 -10 0];
+temp1 = -20:35;% -20 -10 0];
  
  
 % Part 1 and 2
  
 for ifreq = 1:numel(freq)
-    l = 3e8/freq(ifreq)*1e2; % in cm.
-    for it = 1:3
+    l = 299792458/freq(ifreq)*1e2; % in cm.
+    for it = 1:numel(temp1)
         for im = 1%:2
-            t = temp(im,it);
+            t = temp1(im,it);
             switch(im)
                 case (1), ... % Water
                     mat = 'Water';
@@ -53,9 +53,12 @@ for ifreq = 1:numel(freq)
             e_2=((e_s-e_inf)*(l_s/l)^(1-a)*cos(a*pi/2))/ ...
                 (1+2*(l_s/l)^(1-a)*sin(a*pi/2)+(l_s/l)^(2*(1-a)))+s*l/18.8496e10;
             m2 = complex(e_1,e_2); m =sqrt(m2); n = real(m); k = imag(m);
-            disp (['e_r = (' num2str(e_1) ',' num2str(e_2) '), freq = ' ...
-                num2str(freq(ifreq)/1e9) 'GHz, temp = ' num2str(t) 'C, ' mat]);
-            disp([m2, m, n, k]);
+            %disp (['e_r = (' num2str(e_1) ',' num2str(e_2) '), freq = ' ...
+            %    num2str(freq(ifreq)/1e9) 'GHz, temp = ' num2str(t) 'C, ' mat]);
+            %disp([m2, m, n, k]);
+            val_n(it) = n;
+            val_k(it) = k;
+            val_kwq(it) = (abs((m2-1)/(m2+2)))^2;           
         end
     end
 end

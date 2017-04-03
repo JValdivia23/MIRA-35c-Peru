@@ -6,7 +6,7 @@ pwx = sum(sig);
 if ~isempty(xx)
     vlx = sum(spc(xx).*xx)/pwx;
     vvx = sum(spc(xx).*xx.*xx)/pwx;
-    snr=zeros(size(spc));
+    snr=NaN(size(spc));
     if length(xx)> 2
         snr(xx)=sig/noise;% vlx=vlx; 
         vvx=sqrt(vvx - vlx.*vlx);
@@ -16,6 +16,6 @@ if ~isempty(xx)
         vvx=NaN;
     end
 else
-    snr=spc; vlx=NaN; vvx=NaN;
+    snr=NaN(size(spc)); vlx=NaN; vvx=NaN;
     return
 end
