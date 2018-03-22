@@ -1,6 +1,7 @@
-function fig1 = plot_mira35c(time,range,variable,jvarname)
-% plot_mira35c - Plot a variable of Mira 35c radar
-%     
+function fig1 = plot_mira35c(time,range,variable,jvarname,gpath)
+% plot_mira35c(time,range,variable,jvarname,gpath)
+%
+%     Plot a variable of Mira 35c radar
 %     This function returns a graph with automatic fix on dimension and labels.
 %     Introducing plot_mira35c(time,range,variable,jvarname,gpath):
 %     The inputs time, range, variable and jvarname, are 'x axis', 'y axis',
@@ -9,7 +10,8 @@ function fig1 = plot_mira35c(time,range,variable,jvarname)
 % 
 % Created by: Jairo Valdivia                                    Sep - 2016
 
-sfig= 0; % To save figure set sfig = 1
+sfig= 0; % To autosave figure set sfig = 1
+if exist('gpath','var'), sfig=1; end
 if sfig
     if ~exist('gpath','var'), gpath = 'J:\Otros\Radar\Granizo\Graphs\'; end
 end
@@ -31,73 +33,70 @@ else
 end
 %% 5.- Graficar
 rrt=0; % para ticks de RR
+variable(1:2,:)=NaN; % Discarting noisy levels
 switch jvarname
     case {'Z','Ze','Zg'}
-%         strcmp(jvarname,'Z') || strcmp(jvarname,'Ze') || strcmp(jvarname,'Zg')
         variable = 10*log10(variable);
         paleta = jet;
-        palimit = [-60 30];
+        palimit = [-40 60];
         etiqy = 'dBZ [mm^6/m^3]';
         jtitle = [jvarname,' '];
     case {'VEL','VELg','VELcl','VELrain'}
-%         strcmp(jvarname,'VEL') || strcmp(jvarname,'VELg') || strcmp(jvarname,'VELcl') || strcmp(jvarname,'VELrain') || strcmp(jvarname,'VELplank')
 %         variable = variable;
-        paleta =  boonlib('rgmap');
-        palimit = [-11 11];
+        paleta =  boonlib('bjetmapx');%boonlib('rgmap');%
+        palimit = [-10 10];
         etiqy = '[m/s]';
         jtitle = 'Radial Velocity ';
     case {'RMS','RMSg'}
-%         strcmp(jvarname,'RMS') || strcmp(jvarname,'RMSg') || strcmp(jvarname,'RMSplank') || strcmp(jvarname,'RMSrain') || strcmp(jvarname,'RMScl')
 %         variable = variable;
-        paleta = boonlib('rbmap');
-        palimit = [0 4];
+        paleta = boonlib('czmap',64);
+        palimit = [-0.02 2.54];
         etiqy = 'RMS [m/s]';
         jtitle = 'Spectral Width ';
     case {'LDR','LDRg','LDRplank','LDRcl','LDRrain'}
-%         strcmp(jvarname,'LDR') || strcmp(jvarname,'LDRg') || strcmp(jvarname,'LDRplank') || strcmp(jvarname,'LDRrain') || strcmp(jvarname,'LDRcl')
         variable = 10*log10(variable);
-        paleta = jet;
+        paleta = jet(16);
         palimit = [-35 5];
         etiqy = 'LDR dB';
         jtitle = [jvarname,' '];
     case {'SNR','SNRg','SNRplank'}
-%         strcmp(jvarname,'SNR') || strcmp(jvarname,'SNRg') || strcmp(jvarname,'SNRplank') || strcmp(jvarname,'SNRrain') || strcmp(jvarname,'SNRcl')
         variable = 10*log10(variable);
         paleta = jet;
         palimit = [-25 80];
         etiqy = 'SNR dB';
         jtitle = [jvarname,' '];
     case {'RR'}
-        paleta = parula(10); pppal=NaN(341,3);
-        rticks=[0.1,1,2,3,5,8,13,21];
-        dy=[1,rticks*10+1,341,342];
-        for i= 1:10
-            pppal(dy(i):dy(i+1)-1,:)=repmat(paleta(i,:),[dy(i+1)-dy(i),1]);
+        paleta = parula(10);
+        rticks=[0,0.01,0.1,1,2,3,5,8,13,21,34];
+        vari=NaN(size(variable));
+        for x = 1:length(rticks)
+            vari(variable>=rticks(x))=x;
         end
-        paleta=[pppal]; %[0.15,0.15,0.15];
-        palimit = [0 34];
-        etiqy = 'RR mm/h';
+        variable=vari;
+        paleta=[0.7,0.7,0.7; paleta];
+        palimit = [1 12];
+        etiqy = 'RR [mm/h]';
         jtitle = [jvarname,' '];
         rrt=1;
     case {'LWC'}
         variable = log10(variable);
-        paleta = jet;
-        palimit = [0 3];
-        etiqy = 'LWC log_{10}(g/m^3)';
+        paleta = jet(64);
+        palimit = [-1 3];
+        etiqy = 'LWC log_{10}(mg/m^3)';
         jtitle = [jvarname,' '];
 end
 
-fig1=figure;
+fig1=gcf;
 pcolor(meshtime,meshrange,variable)  % Ordenar gráfica (x,y,z)
 shading flat                            % Borde de grilla 'off'
 colormap(paleta)                           % Tipo de paleta
 cb=colorbar;                            % Mostrar paleta
-if rrt, cb=colorbar('ticks',[rticks,34]); end
+if rrt, cb.TickLabels=[rticks(1:end-1),{'<34'},{''}]; end
 caxis(palimit)                         % Rango de paletas
-ylim([249/1000 13])
+ylim([0 8])
 ylabel('Height AGL [km]')                % Etiquetas: > y
 ylabel(cb,etiqy)               % > Paleta
-xlabel(['Universal Time (hours) - ',datestr(timeok(1),1)]);
+xlabel(['Time - ',datestr(timeok(1),1)]);
 % xlabel('Universal Time')                    % > x
 x1=(round(timeok(1)*24))/24;      % Indicar límite inferior
 x2=(round(timeok(end)*24))/24;      % Indicar límite superior
@@ -119,10 +118,12 @@ if rotar90
 end
 dateaxis('x',15)                        % Formato de hora (ver 'help dateaxis' para detalles)
 title([jtitle,datestr(timeok(1),1)]);                 % Título
-
+fig1.CurrentAxes.FontSize=11;
+fig1.CurrentAxes.LineWidth=1.5;
 % Guardar imagen
 if sfig
-print(fig1,'-r220',[gpath,[jvarname,'-'],num2str(datestr(timeok(1),'yymmdd_HH'))],'-dpng')
+print(fig1,'-r300',[gpath,[jvarname,'-'],num2str(datestr(timeok(1),'yymmdd_HH'))],'-dpng')
+disp(['Image saved in: ',gpath])
 % (variable,'resolución','título','formato')
 end
 end

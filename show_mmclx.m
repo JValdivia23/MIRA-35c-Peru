@@ -6,6 +6,7 @@ function fig1 = show_mmclx(filename,jvarname,gpath)
 %     The inputs file and jvarname, are the NetCDF and variable to plot,
 %     gpath is 'graph path'. 
 %     jvarname should be as is described in ncdisp command.
+%     * This function works even if mmclx is compressed (.gz files)
 % 
 % Created by: Jairo Valdivia  -IGP                               Feb - 2017
 
@@ -14,6 +15,8 @@ function fig1 = show_mmclx(filename,jvarname,gpath)
 % if sfig
 %     if ~exist('gpath','var'), gpath = 'J:\Otros\Radar\Plots\'; end
 % end
+
+
 if ~exist('boonlib.m','file'), disp('boonlib library does not exist'); end
 
 if strcmp(filename(end-2:end),'.gz')
@@ -33,4 +36,3 @@ else
 end
 fig1 = plot_mira35c(time,range,variable,jvarname);
 
-end

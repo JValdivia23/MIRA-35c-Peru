@@ -2,7 +2,7 @@ function chunk = spc_read(dpath,filename,ndwells)
 % clc,clear,close all
 %
 if ~exist('dpath','var'), dpath = 'J:\Otros\Radar\'; end
-if ~exist('filename','var'), filename = '20151229_0000.zspc'; end
+if ~exist('filename','var'), filename = '20151229_0000.zspca'; end
 if ~exist('ndwells','var'), ndwells=2630; end %15780
 %15780;2630 % ! - INDICAR EL NUMERO DE DWELLS <<====================<<
 
@@ -231,6 +231,8 @@ pulse_width = pdr * 10^-9;
 delta_h = 0.5 * c * pulse_width;
 nrange = raw_gate2-raw_gate1;
 range = NaN(nrange,1);
+noinor1 = 713031680; % we can find it in /metek/m36s/local/idl/MBCR.config
+noinor2 = 30;
 
 for i = 1:nrange, range(i) = (i-1+raw_gate1)*delta_h; end
 
@@ -238,7 +240,8 @@ for i = 1:nrange, range(i) = (i-1+raw_gate1)*delta_h; end
         'Process_Param',Process_Param,'Co_Spc_Mtr',Co_Spc_Mtr,...
         'Cx_Spc_Mtr',Cx_Spc_Mtr,'UTC',UTC,'RadarConst5',RadarConst5,...
         'HSDV_co',HSDV_co,'HSDV_cx',HSDV_cx,'COFA_co',COFA_co,...
-        'COFA_cx',COFA_cx,'npw1',npw1,'npw2',npw2,'cpw1',cpw1,'cpw2',cpw2,'range',range);
+        'COFA_cx',COFA_cx,'npw1',db2pow(npw1)*noinor1*noinor2,'npw2',...
+        db2pow(npw2)*noinor1*noinor2,'range',range); %'cpw1',cpw1,'cpw2',cpw2
     
 disp([filename,' has been read successfully!'])
 

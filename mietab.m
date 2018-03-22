@@ -23,7 +23,7 @@ lambda = c_light/xmt;
 % brit_n_k = ((lambda-w1).*w2k + (w2-lambda).*w1k)/(w2-w1);
 % brit_temp = [-8,0,10,20];
 % brit_kwq = ((lambda-w1).*w2kwq + (w2-lambda).*w1kwq)/(w2-w1);% constante |k|^2
-complexindex % Complexinder generator
+complexindex % Complex index generator
 bri_temp = temp1; bri_nt = numel(bri_temp);%linspace(-20,35,56); bri_nt=length(bri_temp); 
 bri_n_n = val_n;%interp_jairo(bri_temp,brit_temp,brit_n_n);
 bri_n_k = val_k;%interp_jairo(bri_temp,brit_temp,brit_n_k);
@@ -31,11 +31,12 @@ bri_d = 0.00001:0.00001:0.008; bri_nD = numel(bri_d); %drop diamter in m
 bri_kwq = val_kwq;%interp_jairo(bri_temp,brit_temp,brit_kwq);
 
 
-mietable = NaN(bri_nD,bri_nt);
+% mietable = NaN(bri_nD,bri_nt);
 sbcross = NaN(bri_nD,bri_nt);
 raycross = NaN(bri_nD,bri_nt);
-mietable = struct('mietable',mietable,'Drop_diameter',bri_d*1000,'Temperture',bri_temp,...
-    'SBcross',sbcross,'RayCross',raycross);
+extinc = NaN(bri_nD,bri_nt);
+mietable = struct('Drop_diameter',bri_d*1000,'Temperture',bri_temp,...
+    'SBcross',sbcross,'RayCross',raycross,'Extinction',extinc);
 
 kwq = 0.93;     % constante |k|^2 del agua utilizada para calcular la constate de radar
 
@@ -46,6 +47,7 @@ for it = 1:bri_nt
         %mietab.mietable(id,it) = qback*lambda^4/(kwq*bri_d(id)^2*pi^3);
         mietable.SBcross(id,it) = qback*pi^2*(bri_d(id))^2; %pi/4*D;
         mietable.RayCross(id,it) = bri_kwq(it)*bri_d(id)^6*pi^5/lambda^4;
+        mietable.Extinction(id,it) = qext*pi*(bri_d(id)/2)^2;
     end
 end
 save('mietable.mat','mietable')

@@ -1,5 +1,5 @@
-
-
+% CALCULAR LOS INDICES COMPLEJOS DE REFRACCION
+%
 % De aquí solo hay que extraer la parte correspondiente a 34.85GHz.
 % Y sólo usa la parte para agua.
 % 

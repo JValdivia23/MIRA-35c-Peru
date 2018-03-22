@@ -1,12 +1,9 @@
 function chunk = spc_read2(filename)
 
-%   This is the version 2 of spc_read, to read MIRA 25c scpectra using just
+%   This is the version 2 of spc_read, to read MIRA 35c scpectra using just
 %   a filename.
 %   
 %   Jairo Valdivia - IGP            Mar, 2017 
-
-% if ~exist('dpath','var'), dpath = 'J:\Otros\Radar\'; end
-if ~exist('filename','var'), filename = 'J:\Otros\Radar\20151229_0000.zspca'; end
 
 fid = fopen(filename,'r','ieee-le');
 if fid < 0
@@ -14,7 +11,7 @@ if fid < 0
     error([filename,' not found']);
 % 	return;
 end
-tic
+% tic
 disp('processing...')
 %----------------------------------------
 %                   Header 
@@ -252,13 +249,15 @@ fclose(fid);
     UTC=tdouble/1440/60+daytime;
     clear daytime tdouble
 
-c = 299792458;
+c = 299792458; xmt = 34.85*10^9; %frecuencia
 pulse_width = pdr * 10^-9;
 delta_h = 0.5 * c * pulse_width;
 nrange = raw_gate2-raw_gate1;
 range = NaN(nrange,1);
 noinor1 = 713031680; % we can find it in /metek/m36s/local/idl/MBCR.config
 noinor2 = 30;
+ny_vel = c * Process_Param.prf / (4.0*xmt);
+vel = 2*ny_vel*((Process_Param.sft-1:-1:0)-Process_Param.sft/2)/Process_Param.sft;
 
 for i = 1:nrange, range(i) = (i-1+raw_gate1)*delta_h; end
 
@@ -267,7 +266,7 @@ for i = 1:nrange, range(i) = (i-1+raw_gate1)*delta_h; end
         'Cx_Spc_Mtr',cell2mat(Cx_Spc_Mtr),'UTC',UTC,'RadarConst5',cell2mat(RadarConst5),...
         'HSDV_co',cell2mat(HSDV_co),'HSDV_cx',cell2mat(HSDV_cx),'COFA_co',cell2mat(COFA_co),...
         'COFA_cx',cell2mat(COFA_cx),'npw1',db2pow(cell2mat(npw1))*noinor1*noinor2,'npw2',...
-        db2pow(cell2mat(npw2))*noinor1*noinor2,'range',range); %'cpw1',cpw1,'cpw2',cpw2
+        db2pow(cell2mat(npw2))*noinor1*noinor2,'range',range,'vel',vel); %'cpw1',cpw1,'cpw2',cpw2
 
-    toc    
-disp([filename,' has been read successfully!'])
+%     toc    
+disp([filename,' spectra has been read'])

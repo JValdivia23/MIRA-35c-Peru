@@ -1,4 +1,8 @@
 function [snr, vlx, vvx]=calc_snr(spc,noise)
+% Using the signal (spc) and noise (noise), this function
+% calculates frist and second moment of Doppler Spectra (vlx & vvx)
+% also calculates signal to noise (snr)
+% By:	Jairo Valdivia
 
 xx = find(spc>0);
 sig = spc(xx);%-hild;
